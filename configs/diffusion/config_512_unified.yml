@@ -1,0 +1,88 @@
+# config_512_unified.yml
+model:
+  base_model_id: "stabilityai/stable-diffusion-2-1-base"
+  # vae_id: "stabilityai/sd-vae-ft-mse"  # Commented out as using local FLUX VAE
+  revision: null
+  resolution: 512
+
+data:
+  # Latents are pre-computed using FLUX VAE (16 channels)
+  latents_root: "latents_flux_512"
+  data_root: "Datasets/Celeb_Dataset/Celeb_Final"
+  text_root: "Datasets/Celeb_Captions_Final"
+  image_folder: "images"
+  mask_folder: "masks"
+  sketch_folder: "sketches"
+  mask_suffix: ".png"
+  sketch_suffix: ".png"
+  text_suffix: ".txt"
+  resolution: 512
+
+ffhq_data:
+  data_root: "Datasets/FFHQ/images1024x1024/images1024x1024"
+  mask_data_root: "Datasets/FFHQ/Masks_Colored_1024"
+  sketch_data_root: "Datasets/FFHQ/sketches"
+  text_root: "Datasets/FFHQ_Captions_Final"
+  resolution: 512
+
+conditioning:
+  method: "concat_latent"
+  dit_additional_in_channels: 4 
+
+dit:
+  patch_size: 2
+  in_channels: 32 
+  hidden_size: 1152
+  depth: 28
+  num_heads: 16
+  mlp_ratio: 4.0
+  learn_sigma: false
+  use_cross_attn: false
+
+  attention:
+    type: "full"
+    sparse_config:
+      grid_size: [16, 16]
+      global_tokens: 16
+
+training:
+  output_dir: "dit-unified-flux-vae-512"
+  resume_from_checkpoint: null
+
+  seed: 42
+  train_batch_size: 16
+  num_train_epochs: 300
+  max_train_steps: null
+  learning_rate: 0.0001
+  lr_scheduler: "cosine"
+  lr_warmup_steps: 200
+  adam_beta1: 0.9
+  adam_beta2: 0.999
+  adam_weight_decay: 0.01
+  adam_epsilon: 1.0e-08
+  max_grad_norm: 0.5
+  gradient_accumulation_steps: 1
+  mixed_precision: "bf16"
+  allow_tf32: true
+  use_8bit_adam: true
+  gradient_checkpointing: true
+  text_dropout_prob: 0.05
+  mask_dropout_prob: 0.05
+  sketch_dropout_prob: 0.05
+  dataloader_num_workers: 4
+  optimizer_set_to_none: true
+  enable_xformers_memory_efficient_attention: false
+  use_ema: true
+  ema_decay: 0.9999
+
+logging:
+  report_to: "tensorboard"
+  checkpointing_steps: 4407
+  validation_steps: 4407
+  num_validation_images: 4
+  validation_prompts:
+    - "A photo of a young woman with blonde wavy hair, wearing lipstick and smiling."
+    - "An older man with a beard and glasses, looking serious."
+    - "Close-up portrait of a person with high cheekbones and blue eyes."
+    - "A person with dark skin, short black hair, and a neutral expression."
+  log_level: "INFO"

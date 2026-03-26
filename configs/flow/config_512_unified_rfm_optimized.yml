@@ -1,0 +1,109 @@
+# config_512_unified_rfm_optimized.yml
+model:
+  base_model_id: "stabilityai/stable-diffusion-2-1-base"
+  revision: null
+  resolution: 512
+
+data:
+  latents_root: "/mnt/e/Multi-Modal Face Generation/0_MMDiT_Advanced/10.EndGame/latents_flux_512"
+  data_root: "/mnt/e/Multi-Modal Face Generation/Celeb_Dataset/Celeb_Final"
+  text_root: "/mnt/e/Multi-Modal Face Generation/Celeb_Dataset/Celeb_Captions_Final"
+  image_folder: "images"
+  mask_folder: "masks"
+  sketch_folder: "sketches"
+  mask_suffix: ".png"
+  sketch_suffix: ".png"
+  text_suffix: ".txt"
+  resolution: 512
+
+ffhq_data:
+  data_root: "/mnt/e/Datasets/FFHQ/images1024x1024/images1024x1024"
+  mask_data_root: "/mnt/e/Datasets/FFHQ/Masks_Colored_1024"
+  sketch_data_root: "/mnt/e/Datasets/FFHQ/sketches"
+  text_root: "/mnt/e/Datasets/FFHQ/FFHQ_Captions_Final"
+  resolution: 512
+
+conditioning:
+  method: "concat_latent"
+  dit_additional_in_channels: 4 
+
+dit:
+  patch_size: 2 
+  in_channels: 32 
+  hidden_size: 1152
+  depth: 28
+  num_heads: 16
+  mlp_ratio: 4.0
+  learn_sigma: false
+  use_cross_attn: false  
+  attention:
+    type: "full"
+    sparse_config:  # Ignored when type='full'
+      grid_size: [8, 8]
+      global_tokens: 8
+
+training:
+  output_dir: "dit-unified-flux-vae-512-rfm"
+  
+  # ✅ CHOOSE ONE:
+  # For fresh 512px training:
+  resume_from_checkpoint: null
+
+  # Resume Training (Normal):
+  # resume_from_checkpoint: "dit-unified-flux-vae-512-rfm/checkpoint-42601/"
+  # is_progressive_switch: false # Not used in the nan_fix script, kept for compatibility if needed elsewhere
+  
+  # For progressive training from 256px checkpoint (Not used in nan_fix script as written):
+  # resume_from_checkpoint: "dit-unified-flux-vae-256-rfm/checkpoint-279110"
+  # is_progressive_switch: true  # Set to true to enable progressive training from 256px (Handled differently in nan_fix script)
+  # source_resolution: 256       # Source resolution for progressive training (Handled differently in nan_fix script)
+
+  # Resume Training with FORCED LR 
+  # resume_from_checkpoint: "dit-unified-flux-vae-512-rfm/checkpoint-42601/"
+  force_lr: 0.000001 
+
+  seed: 42
+  train_batch_size: 8
+  num_train_epochs: 50 
+  max_train_steps: null  
+  
+  learning_rate: 0.000005  
+  
+  lr_scheduler: "cosine"
+  lr_warmup_steps: 100
+  
+  adam_beta1: 0.9
+  adam_beta2: 0.999
+  adam_weight_decay: 0.01
+  adam_epsilon: 1.0e-08
+  max_grad_norm: 0.5
+  
+  gradient_accumulation_steps: 2
+  
+  mixed_precision: "bf16"
+  allow_tf32: true
+  use_8bit_adam: true
+  gradient_checkpointing: true
+  
+  text_dropout_prob: 0.05
+  mask_dropout_prob: 0.05
+  sketch_dropout_prob: 0.05
+  
+  dataloader_num_workers: 4
+  optimizer_set_to_none: true
+  enable_xformers_memory_efficient_attention: false
+  
+  use_ema: true
+  ema_decay: 0.9999
+
+logging:
+  report_to: "tensorboard"
+  checkpointing_steps: 1469
+  validation_steps: 1469
+  num_validation_images: 4
+  validation_prompts:
+    - "A photo of a young woman with blonde wavy hair, wearing lipstick and smiling."
+    - "An older man with a beard and glasses, looking serious."
+    - "Close-up portrait of a person with high cheekbones and blue eyes."
+    - "A person with dark skin, short black hair, and a neutral expression."
+  log_level: "INFO"
