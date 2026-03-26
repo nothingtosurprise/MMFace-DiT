@@ -126,7 +126,7 @@ MMFace-DiT/
 |   └── vae/
 ```
 
-*Note:* Please ensure to download the original RGB image for both Celeb and FFHQ datasets from the official sources. Additionally, the optimizer and scheduler states are also provided to resume training or further experimentation. Please note that the weights are needed for inference. 
+*Note:* Please ensure to download the original RGB image for both Celeb and FFHQ datasets from the official sources. Additionally, the optimizer and scheduler states are also provided to resume training or further experimentation. Please note that only the DiT weights are needed for inference.
 
 ---
 
